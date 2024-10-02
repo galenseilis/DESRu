@@ -8,8 +8,8 @@ authors = ["Galen Seilis"]
 license = "Apache-2.0"
 homepage = "https://github.com/galenseilis/DESRu/tree/main"
 repository = "https://github.com/galenseilis/DESRu/tree/main"
-keywords = ["simulation", "des"]
-categories = ["simulation", "des"]
+keywords = ["simulation"]
+categories = ["simulation"]
 
 readme = "README.md"
 
