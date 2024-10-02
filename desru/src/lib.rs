@@ -50,6 +50,11 @@
 //! - **Flexible:** Allowing users to define custom event behaviors.
 //! - **Efficient:** Using a priority queue to ensure events are executed in the correct order.
 //!
+//! ## Design Non-Goals
+//! This framework is only for the very most core components for DES, and will not provide
+//! implementations of simulation tools.
+//!
+//!
 //! ## Future Directions
 //!
 //! Planned features include:
@@ -57,7 +62,9 @@
 //! - **Performance Optimizations:** Improving efficiency for larger simulations.
 //!
 //! ## Crate Overview
-//! This crate provides all necessary components for event-driven simulations in Rust.
+//! This crate provides essential components for event-driven simulations in Rust. Starting
+//! with events and a scheduler, and abstractions that provide weak coupling with state, this crate
+//! can be used to implement most conceivable discrete event simulations.
 use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Ordering;
 use std::fmt;
