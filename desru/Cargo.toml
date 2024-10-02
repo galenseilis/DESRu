@@ -1,8 +1,14 @@
 [package]
 name = "desru"
 version = "0.1.0"
-authors = ["Galen Seilis"]
 edition = "2021"
+
+description = "Discrete Event Simulation in Rust (DESRu)"
+authors = ["Galen Seilis"]
 license = "Apache-2.0"
+homepage = "https://github.com/galenseilis/DESRu/tree/main"
+repository = "https://github.com/galenseilis/DESRu/tree/main"
+keywords = ["simulation", "discrete event simulation"]
+categories = ["simulation", "discrete event simulation"]
 
 [dependencies]

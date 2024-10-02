@@ -1,3 +1,64 @@
+//! # Rust Simulation Framework
+//!
+//! This crate provides a flexible framework for simulating discrete-event systems (DES).
+//! It allows users to schedule, manage, and execute events over time, making it suitable for
+//! simulations of various systems such as queueing networks, resource allocation systems, and more.
+//!
+//! The core components of the framework are:
+//! 
+//! - [`Event`]: A struct representing a single event in the simulation, holding its scheduled time, an action, and context.
+//! - [`EventScheduler`]: A struct that manages the execution of events, prioritizing those scheduled to run earlier.
+//!
+//! ## Key Features
+//!
+//! - **Event Scheduling:** Schedule events at specific times or after delays.
+//! - **Event Logging:** Keep a log of all events executed and their outcomes for later analysis.
+//! - **Flexible Execution:** Run the scheduler until a certain condition is met, such as reaching a max time.
+//! - **Contextual Information:** Attach metadata (context) to each event for richer event processing.
+//! 
+//! ## Usage Example
+//!
+//! Below is a simple example demonstrating how to create an event, schedule it in the `EventScheduler`, and run the simulation.
+//!
+//! ```rust
+//! use std::collections::HashMap;
+//! use rust_simulation_framework::{Event, EventScheduler};
+//!
+//! fn main() {
+//!     let mut scheduler = EventScheduler::new();
+//!     let action = Box::new(|| {
+//!         println!("Event executed!");
+//!         Some("Event completed.".to_string())
+//!     });
+//!
+//!     let event = Event::new(5.0, Some(action), None);
+//!     scheduler.schedule(event);
+//!     scheduler.run_until_max_time(10.0);
+//! }
+//! ```
+//!
+//! ## Core Structs
+//! - [`Event`]: Defines the core event object used to represent scheduled actions.
+//! - [`EventScheduler`]: Manages the execution of events over simulated time.
+//!
+//! ## Customization
+//! You can extend the framework by adding custom event types or adjusting how events are scheduled.
+//!
+//! ## Design Goals
+//! This framework is designed to be:
+//! 
+//! - **Simple to use:** By providing straightforward methods to schedule and run events.
+//! - **Flexible:** Allowing users to define custom event behaviors.
+//! - **Efficient:** Using a priority queue to ensure events are executed in the correct order.
+//!
+//! ## Future Directions
+//!
+//! Planned features include:
+//! - **Advanced Scheduling Policies:** Adding support for different event scheduling strategies.
+//! - **Performance Optimizations:** Improving efficiency for larger simulations.
+//!
+//! ## Crate Overview
+//! This crate provides all necessary components for event-driven simulations in Rust.
 use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Ordering;
 
