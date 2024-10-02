@@ -21,7 +21,6 @@
 //! Below is a simple example demonstrating how to create an event, schedule it in the `EventScheduler`, and run the simulation.
 //!
 //! ```rust
-//! use std::collections::HashMap;
 //! use desru::{Event, EventScheduler};
 //!
 //! fn main() {
