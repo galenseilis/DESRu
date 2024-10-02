@@ -1,7 +1,7 @@
 [package]
 name = "desru"
 version = "0.1.0"
-authors = ["Galen Seilis <galen.seilis@seilis.ca>"]
+authors = ["Galen Seilis"]
 edition = "2021"
 license = "Apache-2.0"
 
