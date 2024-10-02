@@ -94,7 +94,6 @@ impl fmt::Debug for Event {
             .field("time", &self.time)
             .field("active", &self.active)
             .field("context", &self.context)
-            // You can choose to omit `action` or provide a placeholder.
             .finish()
     }
 }
