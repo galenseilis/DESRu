@@ -309,3 +309,4 @@ fn stop_at_max_time_factory(max_time: f64) -> Box<dyn Fn(&EventScheduler) -> boo
             || scheduler.event_queue.peek().map_or(true, |event| event.time >= max_time)
     })
 }
+
