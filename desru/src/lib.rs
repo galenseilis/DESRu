@@ -61,7 +61,7 @@
 //! This crate provides all necessary components for event-driven simulations in Rust.
 use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Ordering;
-
+use std::fmt;
 /// Represents an event in the simulation.
 ///
 /// Each event has a scheduled time (`time`), an associated action (`action`) 
@@ -79,6 +79,18 @@ pub struct Event {
     pub action: Box<dyn FnMut() -> Option<String>>,
     pub context: HashMap<String, String>,
     pub active: bool,
+}
+
+// Implement debug for using {:?}
+impl fmt::Debug for Event {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Event")
+            .field("time", &self.time)
+            .field("active", &self.active)
+            .field("context", &self.context)
+            // You can choose to omit `action` or provide a placeholder.
+            .finish()
+    }
 }
 
 // Implement Clone manually for Event
@@ -310,3 +322,87 @@ fn stop_at_max_time_factory(max_time: f64) -> Box<dyn Fn(&EventScheduler) -> boo
     })
 }
 
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_event_creation() {
+        let action = Box::new(|| Some("Hello".to_string()));
+        let context = HashMap::from([("key".to_string(), "value".to_string())]);
+        let event = Event::new(5.0, Some(action), Some(context));
+
+        assert_eq!(event.time, 5.0);
+        assert!(event.active);
+        assert_eq!(event.context.get("key"), Some(&"value".to_string()));
+    }
+
+    #[test]
+    fn test_event_run() {
+        let mut event = Event::new(0.0, Some(Box::new(|| Some("Executed".to_string()))), None);
+        let result = event.run();
+
+        assert_eq!(result, Some("Executed".to_string()));
+    }
+
+    #[test]
+    fn test_inactive_event_run() {
+        let mut event = Event::new(0.0, Some(Box::new(|| Some("Executed".to_string()))), None);
+        event.active = false;  // Set the event to inactive
+        let result = event.run();
+
+        assert_eq!(result, None);
+    }
+
+    #[test]
+    fn test_event_cloning() {
+        let mut context = HashMap::new();
+        context.insert("key".to_string(), "value".to_string());
+        let original_event = Event::new(5.0, Some(Box::new(|| Some("Executed".to_string()))), Some(context));
+
+        let mut cloned_event = original_event.clone();
+        assert_eq!(cloned_event.time, original_event.time);
+        assert_eq!(cloned_event.context.get("key"), Some(&"value".to_string()));
+        assert!(cloned_event.run().is_none());  // Run should return None due to placeholder action
+    }
+
+    #[test]
+    fn test_event_scheduling() {
+        let mut scheduler = EventScheduler::new();
+        let event = Event::new(5.0, None, None);
+        scheduler.schedule(event);
+
+        assert_eq!(scheduler.event_queue.len(), 1);
+    }
+
+    #[test]
+    fn test_timeout_functionality() {
+        let mut scheduler = EventScheduler::new();
+        scheduler.timeout(10.0, Some(Box::new(|| Some("Timeout Event".to_string()))), None);
+
+        assert_eq!(scheduler.event_queue.len(), 1);
+    }
+
+    #[test]
+    fn test_run_until_max_time() {
+        let mut scheduler = EventScheduler::new();
+        scheduler.timeout(5.0, Some(Box::new(|| Some("Event 1".to_string()))), None);
+        scheduler.timeout(15.0, Some(Box::new(|| Some("Event 2".to_string()))), None);
+
+        let executed_events = scheduler.run_until_max_time(10.0);
+        assert_eq!(executed_events.len(), 1); // Only Event 1 should execute
+    }
+
+    #[test]
+    fn test_stop_condition_functionality() {
+        let mut scheduler = EventScheduler::new();
+        scheduler.timeout(5.0, Some(Box::new(|| Some("Event A".to_string()))), None);
+        
+        let stop_fn = Box::new(|s: &EventScheduler| s.current_time >= 5.0);
+        let executed_events = scheduler.run(stop_fn, None);
+        
+        assert_eq!(executed_events.len(), 1); // Event A should execute
+    }
+}
