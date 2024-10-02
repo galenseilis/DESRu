@@ -11,4 +11,6 @@ repository = "https://github.com/galenseilis/DESRu/tree/main"
 keywords = ["simulation", "discrete event simulation"]
 categories = ["simulation", "discrete event simulation"]
 
+readme = "README.md"
+
 [dependencies]
