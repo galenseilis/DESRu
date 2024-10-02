@@ -19,4 +19,4 @@ jobs:
     - name: Build
       run: cargo build --verbose --manifest-path desru/Cargo.toml
     - name: Run tests
-      run: cargo test --verbose --manifest-path desru/Cargo.toml
+      run: cargo test --verbose --manifest-path desru/Cargo.toml --lib
