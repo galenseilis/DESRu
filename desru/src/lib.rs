@@ -22,7 +22,7 @@
 //!
 //! ```rust
 //! use std::collections::HashMap;
-//! use rust_simulation_framework::{Event, EventScheduler};
+//! use desru::{Event, EventScheduler};
 //!
 //! fn main() {
 //!     let mut scheduler = EventScheduler::new();
