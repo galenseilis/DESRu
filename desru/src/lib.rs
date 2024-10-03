@@ -129,7 +129,7 @@ impl Event {
     ///
     /// # Example
     /// ```
-    /// use std::collections::HashMap;
+    /// use desru::{Event};
     ///
     /// let event = Event::new(5.0, None, None);
     /// assert_eq!(event.time, 5.0);
@@ -151,6 +151,8 @@ impl Event {
     ///
     /// # Example
     /// ```
+    /// use desru::{Event};
+    ///
     /// let mut event = Event::new(0.0, Some(Box::new(|| Some("Executed".to_string()))), None);
     /// assert_eq!(event.run(), Some("Executed".to_string()));
     /// ```
@@ -216,6 +218,8 @@ impl EventScheduler {
     ///
     /// # Example
     /// ```
+    /// use desru::{EventScheduler};
+    ///
     /// let scheduler = EventScheduler::new();
     /// assert_eq!(scheduler.current_time, 0.0);
     /// ```
@@ -234,6 +238,8 @@ impl EventScheduler {
     ///
     /// # Example
     /// ```
+    /// use desru::{Event, EventScheduler};
+    ///
     /// let mut scheduler = EventScheduler::new();
     /// let event = Event::new(5.0, None, None);
     /// scheduler.schedule(event);
@@ -251,6 +257,8 @@ impl EventScheduler {
     ///
     /// # Example
     /// ```
+    /// use desru::EventScheduler;
+    ///
     /// let mut scheduler = EventScheduler::new();
     /// scheduler.timeout(10.0, Some(Box::new(|| Some("Timeout event".to_string()))), None);
     /// ```
@@ -270,6 +278,8 @@ impl EventScheduler {
     ///
     /// # Example
     /// ```
+    /// use desru::{Event, EventScheduler};
+    ///
     /// let mut scheduler = EventScheduler::new();
     /// scheduler.timeout(5.0, Some(Box::new(|| Some("Event executed".to_string()))), None);
     /// let stop_fn = Box::new(|s: &EventScheduler| s.current_time >= 10.0);
@@ -303,6 +313,8 @@ impl EventScheduler {
     ///
     /// # Example
     /// ```
+    /// use desru::{Event, EventScheduler};
+    ///
     /// let mut scheduler = EventScheduler::new();
     /// scheduler.timeout(5.0, Some(Box::new(|| Some("Timeout event".to_string()))), None);
     /// scheduler.run_until_max_time(10.0);
