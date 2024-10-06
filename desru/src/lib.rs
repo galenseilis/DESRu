@@ -154,6 +154,9 @@
 //! ```rust
 //! use desru::{Event, EventScheduler};
 //!
+//! const CHARGE_DURATION: f64 = 5.0;
+//! const TRIP_DURATION: f64 = 2.0;
+//!
 //! struct Car<'a> {
 //!    scheduler: &'a mut EventScheduler,
 //!}
@@ -171,21 +174,20 @@
 //!            self.scheduler.current_time,
 //!            Some(Box::new(move |scheduler: &mut EventScheduler| {
 //!                let mut car_instance = Car { scheduler };  // Create a car instance with a mutable reference
-//!                car_instance.run(); // Call the run method to start the car process
+//!                car_instance.charge(); // Call the run method to start the car process
 //!                None
 //!            })),
 //!            None,
 //!        ));
 //!    }
 //!
-//!    fn run(&mut self) {
+//!    fn charge(&mut self) {
 //!        // Car running process
 //!        println!("Start parking and charging at {}", self.scheduler.current_time);
-//!        let charge_duration = 5.0;
 //!
 //!        // Schedule the charge process
 //!        self.scheduler.schedule(Event::new(
-//!            self.scheduler.current_time + charge_duration,
+//!            self.scheduler.current_time + CHARGE_DURATION,
 //!            Some(Box::new(move |scheduler: &mut EventScheduler| {
 //!                let mut car_instance = Car { scheduler };
 //!                car_instance.drive(); // After charging, start driving
@@ -198,14 +200,13 @@
 //!    fn drive(&mut self) {
 //!        // Start driving process
 //!        println!("Start driving at {}", self.scheduler.current_time);
-//!        let trip_duration = 2.0;
 //!
 //!        // Schedule the next run cycle (parking and charging) after the trip duration
 //!        self.scheduler.schedule(Event::new(
-//!            self.scheduler.current_time + trip_duration,
+//!            self.scheduler.current_time + TRIP_DURATION,
 //!            Some(Box::new(move |scheduler: &mut EventScheduler| {
 //!                let mut car_instance = Car { scheduler };
-//!                car_instance.run(); // Repeat the cycle
+//!                car_instance.charge(); // Repeat the cycle
 //!                None
 //!            })),
 //!            None,
