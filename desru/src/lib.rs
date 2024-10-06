@@ -16,7 +16,7 @@
 //! - **Flexible Execution:** Run the scheduler until a certain condition is met, such as reaching a max time.
 //! - **Contextual Information:** Attach metadata (context) to each event for richer event processing.
 //! 
-//! ## Usage Example
+//! ## Example: Scheduling an Event
 //!
 //! Below is a simple example demonstrating how to create an event, schedule it in the `EventScheduler`, and run the simulation.
 //!
@@ -32,6 +32,118 @@
 //!     scheduler.run_until_max_time(10.0);
 //! }
 //! ```
+//! ## Example: SimPy's Simple Car
+//!
+//! The SimPy Python package provides a [simple car example](https://simpy.readthedocs.io/en/latest/simpy_intro/basic_concepts.html#our-first-process ) as a first example. You can see from the following state diagram that a car immediately parks, and then alternates between parking and driving at fixed intervals of time. The duration of the car being parked is 5 units of time, while the duration of the car driving is only 2 units of time.
+//!
+//! <pre>
+#![doc = mermaid!("car_state.mmd")]
+//! </pre>
+//!
+//! In this example we implement the same process, but using `desru`.
+//!
+//! ```rust
+//! use desru::{Event, EventScheduler};
+//!
+//! fn car(scheduler: &mut EventScheduler) {
+//!    // Start by parking, which repeats in a loop
+//!    println!("Start parking at {}", scheduler.current_time);
+//!
+//!    let parking_duration = 5.0;
+//!    let trip_duration = 2.0;
+//!
+//!    // Schedule event to start driving after parking
+//!    scheduler.schedule(Event::new(
+//!        scheduler.current_time + parking_duration,
+//!        Some(Box::new(move |scheduler: &mut EventScheduler| {
+//!            println!("Start driving at {}", scheduler.current_time);
+//!
+//!            // Schedule event to start parking after driving
+//!            scheduler.schedule(Event::new(
+//!                scheduler.current_time + trip_duration,
+//!                Some(Box::new(move |scheduler: &mut EventScheduler| {
+//!                    car(scheduler); // Recurse to repeat the cycle
+//!                    None // No string context needed, returning None
+//!                })),
+//!                None,
+//!            ));
+//!            None // No string context needed, returning None
+//!        })),
+//!        None,
+//!    ));
+//!}
+//!
+//!fn main() {
+//!    // Initialize the event scheduler
+//!    let mut scheduler = EventScheduler::new();
+//!
+//!    // Start the car simulation
+//!    car(&mut scheduler);
+//!
+//!    // Run the scheduler for a max time of 15 units
+//!    scheduler.run_until_max_time(15.0);
+//!}
+//!```
+//! You should expect to see this output:
+//!
+//!```bash
+//! Start parking at 0
+//! Start driving at 5
+//! Start parking at 7
+//! Start driving at 12
+//! Start parking at 14
+//! ```
+//! The above implementation was intended to try to do what the SimPy example does: have multiple
+//! events scheduled within a single function. However, we can refactor the code using multiple functions that schedule each other. Further, for this simple example at least, we don't need to keep defining the durations to the same constant values in every function call so we can also define those as global constants. I think it is easier to read this way:
+//!
+//!```rust
+//! use desru::{Event, EventScheduler};
+//!
+//! const MAX_TIME: f64 = 15.0;
+//! const PARK_DURATION: f64 =  5.0;
+//! const DRIVE_DURATION: f64 =  2.0;
+//!
+//! fn car(scheduler: &mut EventScheduler) {
+//!    park(scheduler);
+//!}
+//!
+//!fn park(scheduler: &mut EventScheduler) {
+//!    println!("Start parking at {}", scheduler.current_time);
+//!    scheduler.schedule(Event::new(
+//!        scheduler.current_time + PARK_DURATION,
+//!        Some(Box::new(move |scheduler: &mut EventScheduler| {
+//!            drive(scheduler);
+//!            None
+//!        })),
+//!        None,
+//!    ));
+//!}
+//!
+//!fn drive(scheduler: &mut EventScheduler) {
+//!    println!("Start driving at {}", scheduler.current_time);
+//!    scheduler.schedule(Event::new(
+//!        scheduler.current_time + DRIVE_DURATION,
+//!        Some(Box::new(move |scheduler: &mut EventScheduler| {
+//!            park(scheduler); // Return to parking
+//!            None
+//!        })),
+//!        None,
+//!    ));
+//!}
+//!
+//!fn main() {
+//!    // Initialize the event scheduler
+//!    let mut scheduler = EventScheduler::new();
+//!
+//!    // Start the car simulation
+//!    car(&mut scheduler);
+//!
+//!    // Run the scheduler for a max time
+//!    scheduler.run_until_max_time(MAX_TIME);
+//!}
+//!```
+//! For those coming from a SimPy background, what the above implementations in `desru` show us is
+//! that it will sometimes be simpler to factorize out events into separate functions.
 //!
 //! ## Core Structs
 //! - [`Event`]: Defines the core event object used to represent scheduled actions.
@@ -76,6 +188,7 @@
 // $0 IMPORTS //
 ///////////////
 
+use simple_mermaid::mermaid;
 use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Ordering;
 use std::fmt;

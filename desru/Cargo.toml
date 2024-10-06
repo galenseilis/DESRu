@@ -1,6 +1,6 @@
 [package]
 name = "desru"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 
 description = "Discrete Event Simulation in Rust (DESRu)"
@@ -14,3 +14,4 @@ categories = ["simulation"]
 readme = "README.md"
 
 [dependencies]
+simple-mermaid = "0.1.1"
