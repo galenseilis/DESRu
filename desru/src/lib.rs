@@ -145,6 +145,86 @@
 //! For those coming from a SimPy background, what the above implementations in `desru` show us is
 //! that it will sometimes be simpler to factorize out events into separate functions.
 //!
+//! ## Example: SimPy's Objected Oriented Car ("Process Interaction")
+//!
+//! This example is an implementation of SimPy's [*Waiting for a Process*](https://simpy.readthedocs.io/en/latest/simpy_intro/process_interaction.html#waiting-for-a-process) example. It it highly similar to the previous car example, however a class is used along with multiple methods.
+//!
+//! While Rust does not have classes in the usual sense, it does support its own flavor of [OOP](https://doc.rust-lang.org/beta/book/ch17-00-oop.html). While Rust's OOP does not have inheritance, for which Rust has some useful alternatives, we do not need it to implement an object-oriented implementation of SimPy's example.
+//!
+//! ```rust
+//! use desru::{Event, EventScheduler};
+//!
+//! struct Car<'a> {
+//!    scheduler: &'a mut EventScheduler,
+//!}
+//!
+//!impl<'a> Car<'a> {
+//!    fn new(scheduler: &'a mut EventScheduler) -> Self {
+//!        let mut car = Car { scheduler };
+//!        car.start();
+//!        car
+//!    }
+//!
+//!    fn start(&mut self) {
+//!        // Start the car process
+//!        self.scheduler.schedule(Event::new(
+//!            self.scheduler.current_time,
+//!            Some(Box::new(move |scheduler: &mut EventScheduler| {
+//!                let mut car_instance = Car { scheduler };  // Create a car instance with a mutable reference
+//!                car_instance.run(); // Call the run method to start the car process
+//!                None
+//!            })),
+//!            None,
+//!        ));
+//!    }
+//!
+//!    fn run(&mut self) {
+//!        // Car running process
+//!        println!("Start parking and charging at {}", self.scheduler.current_time);
+//!        let charge_duration = 5.0;
+//!
+//!        // Schedule the charge process
+//!        self.scheduler.schedule(Event::new(
+//!            self.scheduler.current_time + charge_duration,
+//!            Some(Box::new(move |scheduler: &mut EventScheduler| {
+//!                let mut car_instance = Car { scheduler };
+//!                car_instance.drive(); // After charging, start driving
+//!                None
+//!            })),
+//!            None,
+//!        ));
+//!    }
+//!
+//!    fn drive(&mut self) {
+//!        // Start driving process
+//!        println!("Start driving at {}", self.scheduler.current_time);
+//!        let trip_duration = 2.0;
+//!
+//!        // Schedule the next run cycle (parking and charging) after the trip duration
+//!        self.scheduler.schedule(Event::new(
+//!            self.scheduler.current_time + trip_duration,
+//!            Some(Box::new(move |scheduler: &mut EventScheduler| {
+//!                let mut car_instance = Car { scheduler };
+//!                car_instance.run(); // Repeat the cycle
+//!                None
+//!            })),
+//!            None,
+//!        ));
+//!    }
+//!}
+//!
+//!fn main() {
+//!    // Initialize the event scheduler
+//!    let mut scheduler = EventScheduler::new();
+//!
+//!    // Create a car instance
+//!    let _car = Car::new(&mut scheduler);
+//!
+//!    // Run the scheduler for a max time of 15 units
+//!    scheduler.run_until_max_time(15.0);
+//!}
+//!```
+//!
 //! ## Core Structs
 //! - [`Event`]: Defines the core event object used to represent scheduled actions.
 //! - [`EventScheduler`]: Manages the execution of events over simulated time.
