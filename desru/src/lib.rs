@@ -107,10 +107,10 @@ pub struct Event {
 impl fmt::Debug for Event {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Event")
-            .field("time", &self.time)
-            .field("active", &self.active)
-            .field("context", &self.context)
-            .finish()
+         .field("time", &self.time)
+         .field("active", &self.active)
+         .field("context", &self.context)
+         .finish()
     }
 }
 
@@ -170,7 +170,9 @@ impl Event {
     /// use desru::{Event, EventScheduler};
     ///
     /// let mut scheduler = EventScheduler::new();
-    /// let mut event = Event::new(0.0, Some(Box::new(|scheduler| Some("Executed".to_string()))), None);
+    /// let mut event = Event::new(0.0,
+    ///                            Some(Box::new(|scheduler| Some("Executed".to_string()))),
+    ///                            None);
     /// assert_eq!(event.run(&mut scheduler), Some("Executed".to_string()));
     /// ```
     pub fn run(&mut self, scheduler: &mut EventScheduler) -> Option<String> {
@@ -281,7 +283,9 @@ impl EventScheduler {
     /// use desru::EventScheduler;
     ///
     /// let mut scheduler = EventScheduler::new();
-    /// scheduler.timeout(10.0, Some(Box::new(|_| Some("Timeout event".to_string()))), None);
+    /// scheduler.timeout(10.0,
+    ///                   Some(Box::new(|_| Some("Timeout event".to_string()))),
+    ///                   None);
     /// ```
     pub fn timeout(&mut self, delay: f64, action: Option<Box<dyn FnMut(&mut EventScheduler) -> Option<String>>>, context: Option<HashMap<String, String>>) {
         let event = Event::new(self.current_time + delay, action, context);
@@ -302,7 +306,9 @@ impl EventScheduler {
     /// use desru::{Event, EventScheduler};
     ///
     /// let mut scheduler = EventScheduler::new();
-    /// scheduler.timeout(5.0, Some(Box::new(|_| Some("Event executed".to_string()))), None);
+    /// scheduler.timeout(5.0,
+    ///                   Some(Box::new(|_| Some("Event executed".to_string()))),
+    ///                   None);
     /// let stop_fn = Box::new(|s: &EventScheduler| s.current_time >= 10.0);
     /// scheduler.run(stop_fn, None);
     /// ```
@@ -337,7 +343,9 @@ impl EventScheduler {
     /// use desru::{Event, EventScheduler};
     ///
     /// let mut scheduler = EventScheduler::new();
-    /// scheduler.timeout(5.0, Some(Box::new(|_| Some("Timeout event".to_string()))), None);
+    /// scheduler.timeout(5.0,
+    ///                   Some(Box::new(|_| Some("Timeout event".to_string()))),
+    ///                   None);
     /// scheduler.run_until_max_time(10.0);
     /// ```
     pub fn run_until_max_time(&mut self, max_time: f64) -> Vec<(Event, Option<String>)> {
