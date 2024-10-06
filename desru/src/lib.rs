@@ -42,10 +42,10 @@
 //!
 //! In this example we implement the same process, but using `desru`.
 //!
-//! ```rust
-//! use desru::{Event, EventScheduler};
+//!```rust
+//!use desru::{Event, EventScheduler};
 //!
-//! fn car(scheduler: &mut EventScheduler) {
+//!fn car(scheduler: &mut EventScheduler) {
 //!    // Start by parking, which repeats in a loop
 //!    println!("Start parking at {}", scheduler.current_time);
 //!
