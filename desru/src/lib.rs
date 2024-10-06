@@ -25,7 +25,9 @@
 //!
 //! fn main() {
 //!     let mut scheduler = EventScheduler::new();
-//!     let mut event = Event::new(0.0, Some(Box::new(|scheduler| Some("Executed".to_string()))), None);
+//!     let mut event = Event::new(0.0,
+//!                                Some(Box::new(|scheduler| Some("Executed".to_string()))),
+//!                                None);
 //!     scheduler.schedule(event);
 //!     scheduler.run_until_max_time(10.0);
 //! }
