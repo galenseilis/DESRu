@@ -141,7 +141,7 @@ fn main() {
 
 # Core Components
 
-The Event struct represents a discrete event in the simulation. Each event has:
+The `Event` struct represents a discrete event in the simulation. Each event has:
 
 - A scheduled time.
 - A closure (the action) to be executed when the event is triggered.
