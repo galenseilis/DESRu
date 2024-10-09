@@ -141,8 +141,6 @@ fn main() {
 
 # Core Components
 
-The `Event` struct repre
-
 The Event struct represents a discrete event in the simulation. Each event has:
 
 - A scheduled time.
