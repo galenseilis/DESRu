@@ -376,6 +376,16 @@ impl Event {
             None
         }
     }
+
+    /// Sets the event to be active.
+    pub fn activate(&mut self) -> () {
+        self.active = true;
+    }
+
+    /// Sets the event to be inactive.
+    pub fn deactivate(&mut self) -> () {
+        self.active = false;
+    }
 }
 
 // Implement ordering traits for Event to use in BinaryHeap
