@@ -5,7 +5,7 @@
 //! simulations of various systems such as queueing networks, resource allocation systems, and more.
 //!
 //! The core components of the framework are:
-//! 
+//!
 //! - [`Event`]: A struct representing a single event in the simulation, holding its scheduled time, an action, and context.
 //! - [`EventScheduler`]: A struct that manages the execution of events, prioritizing those scheduled to run earlier.
 //!
@@ -15,7 +15,7 @@
 //! - **Event Logging:** Keep a log of all events executed and their outcomes for later analysis.
 //! - **Flexible Execution:** Run the scheduler until a certain condition is met, such as reaching a max time.
 //! - **Contextual Information:** Attach metadata (context) to each event for richer event processing.
-//! 
+//!
 //! ## Example: Scheduling an Event
 //!
 //! Below is a simple example demonstrating how to create an event, schedule it in the `EventScheduler`, and run the simulation.
@@ -235,7 +235,7 @@
 //!
 //! ## Design Goals
 //! This framework is designed to be:
-//! 
+//!
 //! - **Simple to use:** By providing straightforward methods to schedule and run events.
 //! - **Flexible:** Allowing users to define custom event behaviors.
 //! - **Efficient:** Using a priority queue to ensure events are executed in the correct order.
@@ -270,8 +270,8 @@
 ///////////////
 
 use simple_mermaid::mermaid;
-use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap};
 use std::fmt;
 
 /////////////////////////////
@@ -280,8 +280,8 @@ use std::fmt;
 
 /// Represents an event in the simulation.
 ///
-/// Each event has a scheduled time (`time`), an associated action (`action`) 
-/// that will be executed when the event occurs, and a `context` for storing 
+/// Each event has a scheduled time (`time`), an associated action (`action`)
+/// that will be executed when the event occurs, and a `context` for storing
 /// key-value pairs of additional information about the event.
 ///
 /// # Fields
@@ -295,16 +295,16 @@ pub struct Event {
     pub action: Box<dyn FnMut(&mut EventScheduler) -> Option<String>>,
     pub context: HashMap<String, String>,
     pub active: bool,
-    }
+}
 
 // Implement debug for using {:?}
 impl fmt::Debug for Event {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Event")
-         .field("time", &self.time)
-         .field("active", &self.active)
-         .field("context", &self.context)
-         .finish()
+            .field("time", &self.time)
+            .field("active", &self.active)
+            .field("context", &self.context)
+            .finish()
     }
 }
 
@@ -313,7 +313,7 @@ impl Clone for Event {
     /// Creates a clone of the event.
     ///
     /// **Note**: The action closure is not cloned, since closures cannot be cloned. A placeholder
-    /// action that returns `None` is used in the cloned event. The `context` and other fields are 
+    /// action that returns `None` is used in the cloned event. The `context` and other fields are
     /// copied as usual.
     fn clone(&self) -> Self {
         Event {
@@ -321,9 +321,9 @@ impl Clone for Event {
             action: Box::new(|_| None), // Placeholder action for clone.
             context: self.context.clone(),
             active: self.active,
-            }
         }
     }
+}
 
 // Implement Event methods
 impl Event {
@@ -344,13 +344,17 @@ impl Event {
     /// let event = Event::new(5.0, None, None);
     /// assert_eq!(event.time, 5.0);
     /// ```
-    pub fn new(time: f64, action: Option<Box<dyn FnMut(&mut EventScheduler) -> Option<String>>>, context: Option<HashMap<String, String>>) -> Self {
+    pub fn new(
+        time: f64,
+        action: Option<Box<dyn FnMut(&mut EventScheduler) -> Option<String>>>,
+        context: Option<HashMap<String, String>>,
+    ) -> Self {
         Event {
             time,
             action: action.unwrap_or_else(|| Box::new(|_| None)),
             context: context.unwrap_or_default(),
             active: true,
-            }
+        }
     }
 
     /// Executes the action of the event if it is active.
@@ -371,7 +375,7 @@ impl Event {
     /// ```
     pub fn run(&mut self, scheduler: &mut EventScheduler) -> Option<String> {
         if self.active {
-           (self.action)(scheduler)
+            (self.action)(scheduler)
         } else {
             None
         }
@@ -444,7 +448,7 @@ impl EventScheduler {
     /// A new `EventScheduler` instance.
     ///
     /// # Example
-    /// ```
+    /// ```rust
     /// use desru::{EventScheduler};
     ///
     /// let scheduler = EventScheduler::new();
@@ -483,7 +487,7 @@ impl EventScheduler {
     /// - `context`: Additional context for the event (optional).
     ///
     /// # Example
-    /// ```
+    /// ```rust
     /// use desru::EventScheduler;
     ///
     /// let mut scheduler = EventScheduler::new();
@@ -491,7 +495,12 @@ impl EventScheduler {
     ///                   Some(Box::new(|_| Some("Timeout event".to_string()))),
     ///                   None);
     /// ```
-    pub fn timeout(&mut self, delay: f64, action: Option<Box<dyn FnMut(&mut EventScheduler) -> Option<String>>>, context: Option<HashMap<String, String>>) {
+    pub fn timeout(
+        &mut self,
+        delay: f64,
+        action: Option<Box<dyn FnMut(&mut EventScheduler) -> Option<String>>>,
+        context: Option<HashMap<String, String>>,
+    ) {
         let event = Event::new(self.current_time + delay, action, context);
         self.schedule(event);
     }
@@ -516,7 +525,11 @@ impl EventScheduler {
     /// let stop_fn = Box::new(|s: &EventScheduler| s.current_time >= 10.0);
     /// scheduler.run(stop_fn, None);
     /// ```
-    pub fn run(&mut self, stop: Box<dyn Fn(&Self) -> bool>, log_filter: Option<Box<dyn Fn(&Event, &Option<String>) -> bool>>)  -> Vec<(Event, Option<String>)> {
+    pub fn run(
+        &mut self,
+        stop: Box<dyn Fn(&Self) -> bool>,
+        log_filter: Option<Box<dyn Fn(&Event, &Option<String>) -> bool>>,
+    ) -> Vec<(Event, Option<String>)> {
         let log_filter = log_filter.unwrap_or_else(|| Box::new(|_, _| true));
         while !stop(self) {
             if let Some(mut event) = self.event_queue.pop() {
@@ -572,7 +585,10 @@ impl EventScheduler {
 fn stop_at_max_time_factory(max_time: f64) -> Box<dyn Fn(&EventScheduler) -> bool> {
     Box::new(move |scheduler: &EventScheduler| {
         scheduler.current_time >= max_time
-        || scheduler.event_queue.peek().map_or(true, |event| event.time >= max_time)
+            || scheduler
+                .event_queue
+                .peek()
+                .map_or(true, |event| event.time >= max_time)
     })
 }
 
@@ -588,7 +604,11 @@ mod tests {
     #[test]
     fn test_event_run() {
         let mut _scheduler = EventScheduler::new();
-        let mut event = Event::new(0.0, Some(Box::new(|_scheduler| Some("Executed".to_string()))), None);
+        let mut event = Event::new(
+            0.0,
+            Some(Box::new(|_scheduler| Some("Executed".to_string()))),
+            None,
+        );
         let result = event.run(&mut _scheduler);
 
         assert_eq!(result, Some("Executed".to_string()));
@@ -597,8 +617,12 @@ mod tests {
     #[test]
     fn test_inactive_event_run() {
         let mut _scheduler = EventScheduler::new();
-        let mut event = Event::new(0.0, Some(Box::new(|_scheduler| Some("Executed".to_string()))), None);
-        event.active = false;  // Set the event to inactive
+        let mut event = Event::new(
+            0.0,
+            Some(Box::new(|_scheduler| Some("Executed".to_string()))),
+            None,
+        );
+        event.active = false; // Set the event to inactive
         let result = event.run(&mut _scheduler);
 
         assert_eq!(result, None);
@@ -609,12 +633,16 @@ mod tests {
         let mut _scheduler = EventScheduler::new();
         let mut context = HashMap::new();
         context.insert("key".to_string(), "value".to_string());
-        let original_event = Event::new(5.0, Some(Box::new(|_scheduler| Some("Executed".to_string()))), Some(context));
+        let original_event = Event::new(
+            5.0,
+            Some(Box::new(|_scheduler| Some("Executed".to_string()))),
+            Some(context),
+        );
 
         let mut cloned_event = original_event.clone();
         assert_eq!(cloned_event.time, original_event.time);
         assert_eq!(cloned_event.context.get("key"), Some(&"value".to_string()));
-        assert!(cloned_event.run(&mut _scheduler).is_none());  // Run should return None due to placeholder action
+        assert!(cloned_event.run(&mut _scheduler).is_none()); // Run should return None due to placeholder action
     }
 
     #[test]
@@ -629,7 +657,11 @@ mod tests {
     #[test]
     fn test_timeout_functionality() {
         let mut scheduler = EventScheduler::new();
-        scheduler.timeout(10.0, Some(Box::new(|_| Some("Timeout Event".to_string()))), None);
+        scheduler.timeout(
+            10.0,
+            Some(Box::new(|_| Some("Timeout Event".to_string()))),
+            None,
+        );
 
         assert_eq!(scheduler.event_queue.len(), 1);
     }
@@ -647,11 +679,15 @@ mod tests {
     #[test]
     fn test_stop_condition_functionality() {
         let mut _scheduler = EventScheduler::new();
-        _scheduler.timeout(5.0, Some(Box::new(|_scheduler| Some("Event A".to_string()))), None);
-        
+        _scheduler.timeout(
+            5.0,
+            Some(Box::new(|_scheduler| Some("Event A".to_string()))),
+            None,
+        );
+
         let stop_fn = Box::new(|s: &EventScheduler| s.current_time >= 5.0);
         let executed_events = _scheduler.run(stop_fn, None);
-        
+
         assert_eq!(executed_events.len(), 1); // Event A should execute
     }
 }
