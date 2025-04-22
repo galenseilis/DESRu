@@ -274,9 +274,18 @@ use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 use std::fmt;
 
-/////////////////////////////
-// $1 DEFINE EVENT STRUCT //
-///////////////////////////
+////////////////////////////
+// $ DEFINE EVENT STATUS //
+//////////////////////////
+
+pub enum EventStatus {
+    Active,
+    Inactive,
+}
+
+////////////////////////////
+// $ DEFINE EVENT STRUCT //
+//////////////////////////
 
 /// Represents an event in the simulation.
 ///
@@ -289,12 +298,12 @@ use std::fmt;
 /// - `action`: A closure that represents the task to be performed when the event is triggered.
 ///   It returns an `Option<String>` to optionally pass a result when executed.
 /// - `context`: A map containing any extra contextual information as key-value pairs (both as `String`).
-/// - `active`: A boolean indicating if the event is active. If false, the event will not run.
+/// - `status`: A boolean indicating if the event is active. If false, the event will not run.
 pub struct Event {
     pub time: f64,
     pub action: Box<dyn FnMut(&mut EventScheduler) -> Option<String>>,
     pub context: HashMap<String, String>,
-    pub active: bool,
+    pub status: bool,
 }
 
 // Implement debug for using {:?}
@@ -302,7 +311,7 @@ impl fmt::Debug for Event {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Event")
             .field("time", &self.time)
-            .field("active", &self.active)
+            .field("active", &self.status)
             .field("context", &self.context)
             .finish()
     }
@@ -320,7 +329,7 @@ impl Clone for Event {
             time: self.time,
             action: Box::new(|_| None), // Placeholder action for clone.
             context: self.context.clone(),
-            active: self.active,
+            status: self.status,
         }
     }
 }
@@ -353,7 +362,7 @@ impl Event {
             time,
             action: action.unwrap_or_else(|| Box::new(|_| None)),
             context: context.unwrap_or_default(),
-            active: true,
+            status: true,
         }
     }
 
@@ -374,7 +383,7 @@ impl Event {
     /// assert_eq!(event.run(&mut scheduler), Some("Executed".to_string()));
     /// ```
     pub fn run(&mut self, scheduler: &mut EventScheduler) -> Option<String> {
-        if self.active {
+        if self.status {
             (self.action)(scheduler)
         } else {
             None
@@ -383,12 +392,12 @@ impl Event {
 
     /// Sets the event to be active.
     pub fn activate(&mut self) -> () {
-        self.active = true;
+        self.status = true;
     }
 
     /// Sets the event to be inactive.
     pub fn deactivate(&mut self) -> () {
-        self.active = false;
+        self.status = false;
     }
 }
 
@@ -622,7 +631,7 @@ mod tests {
             Some(Box::new(|_scheduler| Some("Executed".to_string()))),
             None,
         );
-        event.active = false; // Set the event to inactive
+        event.status = false; // Set the event to inactive
         let result = event.run(&mut _scheduler);
 
         assert_eq!(result, None);
